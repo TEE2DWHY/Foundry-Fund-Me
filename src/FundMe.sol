@@ -7,6 +7,7 @@ error FundMe__InsufficientAmountSent();
 error FundMe__ContractHasNoBalance();
 error FundMe__OnlyOwnerCanWithdrawFunds();
 error FundMe__WithdrawalFailed();
+error FundMe__AddressHasNotFunded();
 
 contract FundMe {
     PriceConverter priceConverter;
@@ -57,6 +58,17 @@ contract FundMe {
         return s_amountFunded[user];
     }
 
+    function getContractBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+
+    function getFunder(uint256 index) public view returns (address) {
+        if (index >= funders.length) {
+            revert FundMe__AddressHasNotFunded();
+        }
+        return funders[index];
+    }
+
     function getVersion() public view returns (uint256) {
         return priceConverter.getVersion();
     }
@@ -70,7 +82,9 @@ contract FundMe {
     }
 
     modifier onlyOwner() {
-        require(msg.sender == i_owner, "Only owner can withdraw funds");
+        if (msg.sender != i_owner) {
+            revert FundMe__OnlyOwnerCanWithdrawFunds();
+        }
         _;
     }
 }

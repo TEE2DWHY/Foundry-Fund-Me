@@ -5,12 +5,18 @@ import {Test, console} from "forge-std/Test.sol";
 import {FundMe} from "../src/FundMe.sol";
 import {DeployFundeMe} from "../script/DeployFundMe.s.sol";
 
+//Every test should start with the word test so that the test runner can identify it
+
 contract FundMeTest is Test {
     FundMe fundMe;
+    address USER = makeAddr("user");
+    uint256 AMOUN_TO_FUND = 0.1 ether;
+    uint256 STARTING_BALANCE = 10 ether;
 
     function setUp() external {
-        DeployFundeMe deployFundeMe = new DeployFundeMe(); // we easily deploy the contract here and test it
+        DeployFundeMe deployFundeMe = new DeployFundeMe();
         fundMe = deployFundeMe.run();
+        vm.deal(USER, STARTING_BALANCE); // fund ether to the user for testing
     }
 
     function testMinimumDollarisFive() public view {
@@ -33,9 +39,40 @@ contract FundMeTest is Test {
     }
 
     function testIfAmountFundedMatches() public {
-        uint256 expected = 100000000000000000;
+        vm.prank(USER);
+        uint256 expected = AMOUN_TO_FUND;
         fundMe.fund{value: expected}();
-        uint256 actual = fundMe.getFundedAmount(address(this));
+        uint256 actual = fundMe.getFundedAmount(USER);
         assertEq(expected, actual);
+    }
+
+    function testFundingShouldFailWithoutEnoughAmount() public {
+        vm.expectRevert();
+        fundMe.fund{value: 10000}();
+    }
+
+    function testIfFunderGetsAddedToArrayOfFunders() public {
+        vm.prank(USER);
+        fundMe.fund{value: AMOUN_TO_FUND}();
+        address funder = fundMe.getFunder(0);
+        assertEq(funder, USER);
+    }
+
+    function testOnlyOwnerCanWithdraw() public funded {
+        uint256 prevContractBalance = fundMe.getContractBalance();
+        address owner = fundMe.i_owner();
+        uint256 prevOwnerBalance = address(owner).balance;
+        vm.prank(owner); // every transaction below this line will be executed as the owner
+        fundMe.withdraw();
+        uint256 newOwnerBalance = address(owner).balance;
+        assertEq(prevOwnerBalance + prevContractBalance, newOwnerBalance);
+        uint256 newContractBalance = fundMe.getContractBalance();
+        assertEq(newContractBalance, 0);
+    }
+
+    modifier funded() {
+        vm.prank(USER);
+        fundMe.fund{value: AMOUN_TO_FUND}();
+        _;
     }
 }
