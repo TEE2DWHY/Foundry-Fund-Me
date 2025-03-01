@@ -50,7 +50,8 @@ contract FundMe {
         if (!success) {
             revert FundMe__WithdrawalFailed();
         }
-
+        //   funders = new address[](0);
+        delete funders;
         emit Withdrawn(msg.sender, contractBalance);
     }
 
@@ -67,6 +68,10 @@ contract FundMe {
             revert FundMe__AddressHasNotFunded();
         }
         return funders[index];
+    }
+
+    function getFunders() public view returns (address[] memory) {
+        return funders;
     }
 
     function getVersion() public view returns (uint256) {

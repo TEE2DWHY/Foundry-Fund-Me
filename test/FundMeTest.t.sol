@@ -70,6 +70,27 @@ contract FundMeTest is Test {
         assertEq(newContractBalance, 0);
     }
 
+    function testWithdrawalMultipleMultipleFunders() public {
+        uint160 totalFunders = 10;
+        uint160 startingFunderIndex = 1; // thi uint160 has similar byte as an address
+        address owner = fundMe.i_owner();
+        for (uint160 i = startingFunderIndex; i < totalFunders; i++) {
+            hoax(address(i), AMOUN_TO_FUND);
+            fundMe.fund{value: AMOUN_TO_FUND}();
+        }
+        uint256 prevOwnerBalance = address(owner).balance;
+        uint256 prevContractBalance = fundMe.getContractBalance();
+        vm.startPrank(owner); // start pranking the owner
+        fundMe.withdraw();
+        vm.stopPrank();
+        uint256 newOwnerBalance = address(owner).balance;
+        uint256 newContractBalance = fundMe.getContractBalance();
+        assertEq(prevContractBalance + prevOwnerBalance, newOwnerBalance);
+        address[] memory funders = fundMe.getFunders();
+        assertEq(newContractBalance, 0); // contract balance should be zero
+        assertEq(funders.length, 0);
+    }
+
     modifier funded() {
         vm.prank(USER);
         fundMe.fund{value: AMOUN_TO_FUND}();
