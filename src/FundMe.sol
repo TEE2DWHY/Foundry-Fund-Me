@@ -42,7 +42,7 @@ contract FundMe {
         return priceConverter.getConversionRate(ethAmount);
     }
 
-    function withdraw() public payable onlyOwner noReentrancy {
+    function withdraw() public onlyOwner noReentrancy {
         uint256 contractBalance = address(this).balance;
         if (contractBalance == 0) {
             revert FundMe__ContractHasNoBalance();

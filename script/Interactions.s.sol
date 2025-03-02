@@ -22,6 +22,7 @@ contract FundFundMe is Script {
 }
 
 contract WithdrawFundMe is Script {
+    // to execute this run => forge script script/Interactions.s.sol --tc WithdrawFundMe
     function run() external {
         FundMe fundMe;
         DeployFundMe deployFundMe = new DeployFundMe();
@@ -33,7 +34,7 @@ contract WithdrawFundMe is Script {
         console.log("Funding the contract");
 
         vm.startPrank(USER);
-        fundMe.fund{value: 1000000000000}();
+        fundMe.fund{value: 0.1 ether}();
         vm.stopPrank();
 
         uint256 contractBalanceBefore = fundMe.getContractBalance();
