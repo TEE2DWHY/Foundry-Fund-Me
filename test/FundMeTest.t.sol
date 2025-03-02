@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import {Test, console} from "forge-std/Test.sol";
 import {FundMe} from "../src/FundMe.sol";
-import {DeployFundeMe} from "../script/DeployFundMe.s.sol";
+import {DeployFundMe} from "../script/DeployFundMe.s.sol";
 
 //Every test should start with the word test so that the test runner can identify it
 
@@ -12,10 +12,11 @@ contract FundMeTest is Test {
     address USER = makeAddr("user");
     uint256 AMOUN_TO_FUND = 0.1 ether;
     uint256 STARTING_BALANCE = 10 ether;
+    uint256 constant GAS_PRICE = 1;
 
     function setUp() external {
-        DeployFundeMe deployFundeMe = new DeployFundeMe();
-        fundMe = deployFundeMe.run();
+        DeployFundMe deployFundMe = new DeployFundMe();
+        fundMe = deployFundMe.run();
         vm.deal(USER, STARTING_BALANCE); // fund ether to the user for testing
     }
 
@@ -62,8 +63,16 @@ contract FundMeTest is Test {
         uint256 prevContractBalance = fundMe.getContractBalance();
         address owner = fundMe.i_owner();
         uint256 prevOwnerBalance = address(owner).balance;
+
+        uint256 gasLeft = gasleft();
+        vm.txGasPrice(GAS_PRICE);
         vm.prank(owner); // every transaction below this line will be executed as the owner
         fundMe.withdraw();
+        uint256 gasEnd = gasleft();
+
+        uint256 gasUsed = (gasLeft - gasEnd) * tx.gasprice;
+        console.log("Gas used: ", gasUsed);
+
         uint256 newOwnerBalance = address(owner).balance;
         assertEq(prevOwnerBalance + prevContractBalance, newOwnerBalance);
         uint256 newContractBalance = fundMe.getContractBalance();
@@ -75,7 +84,7 @@ contract FundMeTest is Test {
         uint160 startingFunderIndex = 1; // thi uint160 has similar byte as an address
         address owner = fundMe.i_owner();
         for (uint160 i = startingFunderIndex; i < totalFunders; i++) {
-            hoax(address(i), AMOUN_TO_FUND);
+            hoax(address(i), AMOUN_TO_FUND); // fund ether to the user for testing
             fundMe.fund{value: AMOUN_TO_FUND}();
         }
         uint256 prevOwnerBalance = address(owner).balance;

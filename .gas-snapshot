@@ -1,0 +1,8 @@
+FundMeTest:testFundingShouldFailWithoutEnoughAmount() (gas: 37412)
+FundMeTest:testGetPriceConverterVersion() (gas: 25758)
+FundMeTest:testIfAmountFundedMatches() (gas: 112682)
+FundMeTest:testIfFunderGetsAddedToArrayOfFunders() (gas: 113036)
+FundMeTest:testMinimumDollarisFive() (gas: 8930)
+FundMeTest:testOnlyOwnerCanWithdraw() (gas: 99812)
+FundMeTest:testOwnerisMsgSender() (gas: 9075)
+FundMeTest:testWithdrawalMultipleMultipleFunders() (gas: 487140)
