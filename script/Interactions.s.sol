@@ -33,7 +33,7 @@ contract WithdrawFundMe is Script {
         console.log("Funding the contract");
 
         vm.startPrank(USER);
-        fundMe.fund{value: 0.1 ether}();
+        fundMe.fund{value: 1000000000000}();
         vm.stopPrank();
 
         uint256 contractBalanceBefore = fundMe.getContractBalance();
@@ -42,11 +42,9 @@ contract WithdrawFundMe is Script {
             contractBalanceBefore
         );
 
-        require(contractBalanceBefore > 0, "Contract balance is zero");
-
-        vm.startBroadcast(owner);
+        vm.startPrank(owner);
         fundMe.withdraw();
-        vm.stopBroadcast();
+        vm.stopPrank();
 
         uint256 contractBalanceAfter = fundMe.getContractBalance();
         console.log("Contract balance after withdraw: ", contractBalanceAfter);

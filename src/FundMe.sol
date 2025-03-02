@@ -47,14 +47,11 @@ contract FundMe {
         if (contractBalance == 0) {
             revert FundMe__ContractHasNoBalance();
         }
-
         for (uint256 i = 0; i < funders.length; i++) {
             address funder = funders[i];
             s_amountFunded[funder] = 0;
         }
-
         delete funders;
-
         (bool success, ) = payable(msg.sender).call{value: contractBalance}("");
         if (!success) {
             revert FundMe__WithdrawalFailed();
