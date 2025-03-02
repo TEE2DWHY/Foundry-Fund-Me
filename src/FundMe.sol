@@ -51,6 +51,7 @@ contract FundMe {
             address funder = funders[i];
             s_amountFunded[funder] = 0;
         }
+        // funders = new address[](0);
         delete funders;
         (bool success, ) = payable(msg.sender).call{value: contractBalance}("");
         if (!success) {
